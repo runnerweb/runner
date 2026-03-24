@@ -1628,7 +1628,17 @@ function applyHideList() {
   HIDDEN_SET = Object.assign({}, HIDE_PENDING);
   saveHiddenSet();
   closeHideManager();
-  showIndex(); // 인덱스 페이지 새로고침
+
+  // 현재 열린 페이지에 즉시 반영
+  var campPage = document.getElementById("pg-camp");
+  var campName = document.getElementById("cp-title").textContent;
+  if (campPage && campPage.classList.contains("on") && campName) {
+    // 캠프 페이지 열려있으면 해당 캠프 새로고침
+    showCamp(campName);
+  } else {
+    // 인덱스 페이지면 인덱스 새로고침
+    showIndex();
+  }
 }
 
 /* 모달 닫기 */
