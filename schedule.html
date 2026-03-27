@@ -335,9 +335,22 @@ th.toh  {
   background: rgba(37,99,235,.15) !important; color: var(--accent) !important;
   border-top: 2px solid var(--accent);
 }
+/* 🔥 불 아이콘 헤더 강조 */
+th.fire-col {
+  background: rgba(239,68,68,.07) !important;
+}
+th.fire-col.w1h {
+  background: rgba(239,68,68,.1) !important;
+}
+th.fire-col.w2h {
+  background: rgba(239,68,68,.08) !important;
+}
 .dnum { display: block; font-size: 15px; font-weight: 700; font-family: "JetBrains Mono", monospace; line-height: 1; }
+.dnum-wrap { display: flex; align-items: center; justify-content: center; gap: 2px; }
+.dfire-left { font-size: 11px; line-height: 1; }
 .dday { display: block; font-size: 10px; margin-top: 1px; }
 .dpk  { display: block; font-size: 8px; color: var(--orange); margin-top: 1px; letter-spacing: .5px; }
+.dfire { display: block; font-size: 11px; margin-top: 1px; line-height: 1; }
 .dtd  {
   display: inline-block; background: var(--accent); color: #fff;
   font-size: 7px; font-weight: 700; padding: 1px 4px; border-radius: 3px;
@@ -357,6 +370,10 @@ td.sc.w1  { background: var(--w1bg); }
 td.sc.w2  { background: var(--w2bg); }
 td.sc.tod { background: var(--todbg); border-left: 1px solid var(--todbd); border-right: 1px solid var(--todbd); }
 td.sc.w1:last-child, td.sc.w1:nth-child(9) { border-right: 2px solid var(--border); }
+/* 🔥 불 아이콘 열 td 배경 강조 */
+td.sc.fire-day {
+  background: rgba(239,68,68,.06) !important;
+}
 
 /* ════════════════════════
    칩
@@ -397,7 +414,7 @@ td.sc.w1:last-child, td.sc.w1:nth-child(9) { border-right: 2px solid var(--borde
   display: flex; align-items: center; gap: 10px;
   padding: 12px 14px;
   border-bottom: 1px solid var(--border);
-  cursor: pointer; /* 접기/펼치기 */
+  cursor: pointer;
   user-select: none;
 }
 .dc-avatar {
@@ -415,9 +432,7 @@ td.sc.w1:last-child, td.sc.w1:nth-child(9) { border-right: 2px solid var(--borde
   background: rgba(146,64,14,.08); border: 1px solid rgba(146,64,14,.15);
   border-radius: 6px; padding: 3px 8px; flex-shrink: 0;
 }
-.dc-today {
-  flex-shrink: 0;
-}
+.dc-today { flex-shrink: 0; }
 .dc-chevron {
   font-size: 12px; color: var(--text3); flex-shrink: 0;
   transition: transform .2s;
@@ -452,11 +467,25 @@ td.sc.w1:last-child, td.sc.w1:nth-child(9) { border-right: 2px solid var(--borde
   border-color: var(--todbd);
   border-width: 1.5px;
 }
+/* 🔥 불 아이콘 날짜 셀 강조 */
+.day-cell.fire-cell {
+  background: rgba(239,68,68,.06);
+  border-color: rgba(239,68,68,.2);
+}
+.day-cell.fire-cell.today-cell {
+  background: var(--todbg);
+  border-color: var(--todbd);
+}
 .dc-dnum { font-size: 13px; font-weight: 700; font-family: "JetBrains Mono", monospace; line-height: 1; }
+.dc-dnum-wrap { display: flex; align-items: center; justify-content: center; gap: 1px; }
+.dc-fire-left { font-size: 9px; line-height: 1; }
 .dc-dday { font-size: 9px; margin-top: 1px; }
 .dc-today-badge {
   font-size: 7px; font-weight: 700; background: var(--accent); color: #fff;
   border-radius: 3px; padding: 0 3px; margin-top: 1px;
+}
+.dc-fire-badge {
+  font-size: 10px; line-height: 1; margin-top: 1px;
 }
 .dc-chip { margin-top: 4px; }
 .dc-chip .chip { font-size: 8px; padding: 2px 3px; min-width: 0; }
@@ -464,7 +493,7 @@ td.sc.w1:last-child, td.sc.w1:nth-child(9) { border-right: 2px solid var(--borde
 @media (max-width: 768px) {
   .tbl-outer  { display: none; }
   .mobile-list { display: block; }
-  .week-label { display: none; }  /* 모바일에선 카드 안에 표시 */
+  .week-label { display: none; }
 
   /* index grid 단열 */
   .idx-grid { grid-template-columns: 1fr 1fr; gap: 10px; padding: 0 12px; }
@@ -774,6 +803,7 @@ td.sc.w1:last-child, td.sc.w1:nth-child(9) { border-right: 2px solid var(--borde
     <div class="legend-item"><span class="chip co" style="min-width:0;padding:1px 6px">휴무</span> 휴무</div>
     <div class="legend-item"><span class="chip cf" style="min-width:0;padding:1px 6px">고정</span> 고정휴무</div>
     <div class="legend-item"><span class="chip cv" style="min-width:0;padding:1px 6px">휴가</span> 휴가</div>
+    <div class="legend-item"><span style="font-size:12px">🔥</span> 월초 1~7일</div>
   </div>
 
   <!-- 데스크톱: 1주차 -->
@@ -870,6 +900,13 @@ function fmtFull(s) {
   var d=new Date(s+"T00:00:00");
   return d.getFullYear()+"."+String(d.getMonth()+1).padStart(2,"0")+"."+String(d.getDate()).padStart(2,"0");
 }
+
+/* 🔥 1~7일 여부 판단 */
+function isFire(ds) {
+  var dayNum = parseInt(ds.split("-")[2], 10);
+  return dayNum >= 1 && dayNum <= 7;
+}
+
 function isWork(v) {
   if (!v||v==="") return false;
   return !(v==="휴무"||v==="고정휴무"||v==="계획된 휴무"||
@@ -890,7 +927,7 @@ function getInitial(name) {
 }
 
 /* ═══════════════════════════════════════
-   전역 상태 (API 로드 후 채워짐)
+   전역 상태
 ═══════════════════════════════════════ */
 var SHEET_DATES = [];
 var DRIVERS     = [];
@@ -926,14 +963,13 @@ var CAMPS = [], BY_CAMP = {};
   st.textContent = "@keyframes _spin{to{transform:rotate(360deg)}}";
   document.head.appendChild(st);
 
-  // 경과 시간 + 단계 메시지 업데이트
   var _start = Date.now();
   var _steps = [
-    {t:0,  msg:"서버 연결 중…",        pct:5 },
-    {t:2,  msg:"백업 시트 읽는 중…",   pct:30},
+    {t:0,  msg:"서버 연결 중…",          pct:5 },
+    {t:2,  msg:"백업 시트 읽는 중…",     pct:30},
     {t:5,  msg:"스케줄 데이터 처리 중…", pct:60},
     {t:8,  msg:"데이터 거의 다 왔어요!", pct:85},
-    {t:12, msg:"마지막 처리 중…",       pct:92},
+    {t:12, msg:"마지막 처리 중…",         pct:92},
   ];
   var _timer = setInterval(function() {
     var sec = Math.round((Date.now() - _start) / 1000);
@@ -942,7 +978,6 @@ var CAMPS = [], BY_CAMP = {};
     var bar = document.getElementById("load-bar");
     if (!el) { clearInterval(_timer); return; }
     el.textContent = sec + "초 경과";
-    // 단계 메시지
     var step = _steps[0];
     for (var i = _steps.length - 1; i >= 0; i--) {
       if (sec >= _steps[i].t) { step = _steps[i]; break; }
@@ -989,9 +1024,8 @@ function buildWindow() {
   SF    = SHEET_DATES[0].date;
   SLast = SHEET_DATES[SHEET_DATES.length-1].date;
   var _now = new Date(); _now.setDate(_now.getDate()+1);
-  TODAY = toDS(_now);  /* PDD = 내일 날짜 */
+  TODAY = toDS(_now);
 
-  /* 오늘이 속한 주 일요일 */
   var todayDate = new Date(TODAY+"T00:00:00");
   var dow0 = todayDate.getDay();
   var thisSunday = toDS(new Date(todayDate.getFullYear(), todayDate.getMonth(), todayDate.getDate() - dow0));
@@ -999,7 +1033,6 @@ function buildWindow() {
   noticeMsg = "";
   winStart = thisSunday;
 
-  /* 화면 기본 표시: 이번주+다음주 14일 */
   WIN = [];
   for (var i=0; i<14; i++) {
     var ds  = addD(winStart, i);
@@ -1041,11 +1074,11 @@ function loadFromAPI() {
         SHEET_DATES = (data.dates||[]).map(function(ds){ return { date: ds, raw: ds }; });
         DRIVERS     = data.drivers || [];
         if (data.notice) noticeMsg = data.notice;
-        loadHiddenSet();   // 숨긴 기사 목록 로드
+        loadHiddenSet();
         buildWindow();
         buildCampMap();
         hideOverlay();
-        init();   /* 라우팅 시작 */
+        init();
       } catch(e) {
         showFatalError("데이터 파싱 오류: " + e.message);
       }
@@ -1058,7 +1091,6 @@ function loadFromAPI() {
   xhr.send();
 }
 
-/* 페이지 로드 시 API 호출 */
 loadFromAPI();
 
 /* ════════════════════════════════
@@ -1079,7 +1111,7 @@ function showIndex() {
   grid.innerHTML = "";
   CAMPS.forEach(function(camp) {
     var allDrivers = BY_CAMP[camp];
-    var drivers = visibleDrivers(allDrivers);  // 숨긴 기사 제외
+    var drivers = visibleDrivers(allDrivers);
     var hiddenCnt = allDrivers.length - drivers.length;
     var wc = drivers.filter(function(d){ return isWork(d.schedule[TODAY]||""); }).length;
     var oc = drivers.length - wc;
@@ -1100,7 +1132,6 @@ function showIndex() {
         "<div class=\"cstat of\"><div class=\"n\">"+oc+"</div><div class=\"l\">휴무</div></div>"+
       "</div>";
 
-    /* 백업 카드 전용: 오늘 배치 기사 목록 */
     var dispatchHtml = "";
     if (isBackup) {
       var rows = drivers.map(function(d) {
@@ -1144,6 +1175,10 @@ function buildColgroup(cols) {
   for (var i=0;i<cols;i++) c+="<col style=\"width:"+COL_D+"px\">";
   return c+"</colgroup>";
 }
+
+/* ════════════════════════════════
+   🔥 불 아이콘 적용된 buildWHead
+════════════════════════════════ */
 function buildWHead(days, wCls, label) {
   label = label || "";
   var h = buildColgroup(days.length)+
@@ -1153,17 +1188,28 @@ function buildWHead(days, wCls, label) {
     "<th colspan=\""+days.length+"\" class=\""+wCls+"\" style=\"text-align:center\">"+label+"</th>"+
     "</tr><tr><th></th><th></th>";
   days.forEach(function(wd) {
-    var cls = wd.isToday?"toh":wCls;
-    var dc  = wd.dow===0?"sun":wd.dow===6?"sat":"wdy";
-    h += "<th class=\"dcol "+cls+"\">"+
-      "<span class=\"dnum\">"+parseInt(wd.ds.split("-")[2])+"</span>"+
+    var cls = wd.isToday ? "toh" : wCls;
+    var dc  = wd.dow===0 ? "sun" : wd.dow===6 ? "sat" : "wdy";
+    var fire = isFire(wd.ds);
+    /* 🔥 불 날짜면 fire-col 클래스 추가 */
+    var fireCls = fire ? " fire-col" : "";
+    var dayNum = parseInt(wd.ds.split("-")[2], 10);
+    h += "<th class=\"dcol "+cls+fireCls+"\">"+
+      "<span class=\"dnum-wrap\">"+
+        (fire ? "<span class=\"dfire-left\">🔥</span>" : "")+
+        "<span class=\"dnum\">"+dayNum+"</span>"+
+      "</span>"+
       "<span class=\"dday "+dc+"\">"+wd.dn+"</span>"+
-      (wd.peak?"<span class=\"dpk\">PEAK</span>":"")+
-      (wd.isToday?"<span class=\"dtd\">PDD</span>":"")+
+      (wd.peak ? "<span class=\"dpk\">PEAK</span>" : "")+
+      (wd.isToday ? "<span class=\"dtd\">PDD</span>" : "")+
     "</th>";
   });
   return h+"</tr>";
 }
+
+/* ════════════════════════════════
+   🔥 불 아이콘 적용된 buildWRows
+════════════════════════════════ */
 function buildWRows(drivers, days, wCls) {
   var h = buildColgroup(days.length);
   drivers.forEach(function(d) {
@@ -1171,7 +1217,9 @@ function buildWRows(drivers, days, wCls) {
     h += "<td class=\"nc\">"+d.name+"<div class=\"sub\">"+d.id+"</div></td>";
     h += "<td class=\"rc\">"+d.route+"</td>";
     days.forEach(function(wd) {
-      var tc = "sc "+(wd.isToday?"tod":wCls==="w1h"?"w1":"w2");
+      var tc = "sc "+(wd.isToday ? "tod" : wCls==="w1h" ? "w1" : "w2");
+      /* 🔥 불 날짜면 fire-day 클래스 추가 */
+      if (isFire(wd.ds)) tc += " fire-day";
       var v  = (d.schedule&&d.schedule[wd.ds])||"";
       var c  = wd.inSheet ? mkChip(v) : "<span class=\"chip cn\">·</span>";
       h += "<td class=\""+tc+"\">"+c+"</td>";
@@ -1189,18 +1237,26 @@ function buildMobileCards(drivers, useGreen, w1, w2) {
     var todayVal = (d.schedule&&d.schedule[TODAY])||"";
     var todayChip = mkChip(todayVal, useGreen);
 
-    /* 1주차 날짜 그리드 */
+    /* ════════════════════════════════
+       🔥 불 아이콘 적용된 makeDayGrid
+    ════════════════════════════════ */
     function makeDayGrid(days) {
       var g = "<div class=\"day-grid\">";
       days.forEach(function(wd) {
         var v   = (d.schedule&&d.schedule[wd.ds])||"";
         var c   = wd.inSheet ? mkChip(v, useGreen) : "<span class=\"chip cn\">·</span>";
-        var dc  = wd.dow===0?"sun":wd.dow===6?"sat":"wdy";
-        var tod = wd.isToday?" today-cell":"";
-        g += "<div class=\"day-cell"+tod+"\">"+
-          "<span class=\"dc-dnum "+dc+"\">"+parseInt(wd.ds.split("-")[2])+"</span>"+
+        var dc  = wd.dow===0 ? "sun" : wd.dow===6 ? "sat" : "wdy";
+        var tod = wd.isToday ? " today-cell" : "";
+        var fire = isFire(wd.ds);
+        var fireCls = fire ? " fire-cell" : "";
+        var dayNum = parseInt(wd.ds.split("-")[2], 10);
+        g += "<div class=\"day-cell"+tod+fireCls+"\">"+
+          "<span class=\"dc-dnum-wrap\">"+
+            (fire ? "<span class=\"dc-fire-left\">🔥</span>" : "")+
+            "<span class=\"dc-dnum "+dc+"\">"+dayNum+"</span>"+
+          "</span>"+
           "<span class=\"dc-dday "+dc+"\">"+wd.dn+"</span>"+
-          (wd.isToday?"<span class=\"dc-today-badge\">PDD</span>":"")+
+          (wd.isToday ? "<span class=\"dc-today-badge\">PDD</span>" : "")+
           "<span class=\"dc-chip\">"+c+"</span>"+
           "</div>";
       });
@@ -1222,8 +1278,7 @@ function buildMobileCards(drivers, useGreen, w1, w2) {
         "<div class=\"dc-body\">"+
           "<div class=\"week-grid-label wgl-w1\">🟠 1주차 "+fmt(w1[0].ds)+"~"+fmt(w1[6].ds)+"</div>"+
           makeDayGrid(w1)+
-          "<div class=\"week-grid-label wgl-w2\">🔵 2주차 "+fmt(w2[0].ds)+"~"+fmt(w2[6].ds)+"</div>"+
-          makeDayGrid(w2)+
+          (w2.length ? "<div class=\"week-grid-label wgl-w2\">🔵 2주차 "+fmt(w2[0].ds)+"~"+fmt(w2[w2.length-1].ds)+"</div>"+makeDayGrid(w2) : "")+
         "</div>"+
       "</div>";
   });
@@ -1234,7 +1289,7 @@ function buildMobileCards(drivers, useGreen, w1, w2) {
 function showCamp(camp) {
   var allDrivers = BY_CAMP[camp];
   if (!allDrivers) { showIndex(); return; }
-  var drivers = visibleDrivers(allDrivers);  // 숨긴 기사 제외
+  var drivers = visibleDrivers(allDrivers);
 
   pgIndex.classList.remove("on");
   pgCamp.classList.add("on");
@@ -1254,11 +1309,9 @@ function showCamp(camp) {
     "<span class=\"tchip wk\">출근 "+wc+"명</span>"+
     "<span class=\"tchip of\">휴무 "+oc+"명</span>";
 
-  /* TODAY(PDD) 기준 이번주 일요일 ~ 다음주 토요일 14일 고정 */
   var rDate = new Date(TODAY + "T00:00:00");
   var sun0  = toDS(new Date(rDate.getFullYear(), rDate.getMonth(), rDate.getDate() - rDate.getDay()));
 
-  /* 이번주(7일) + 다음주(7일) */
   var dispW1 = [], dispW2 = [];
   for (var wi = 0; wi < 14; wi++) {
     var ds = addD(sun0, wi);
@@ -1268,21 +1321,17 @@ function showCamp(camp) {
     if (wi < 7) dispW1.push(obj); else dispW2.push(obj);
   }
 
-  /* 주차 레이블 */
   document.getElementById("wl1-range").textContent = fmt(dispW1[0].ds)+" ~ "+fmt(dispW1[dispW1.length-1].ds);
   document.getElementById("wl2-range").textContent = dispW2.length ? fmt(dispW2[0].ds)+" ~ "+fmt(dispW2[dispW2.length-1].ds) : "";
 
-  /* 데스크톱 테이블 */
   var useGreen = (camp === "백업" || camp === "운영자");
   document.getElementById("cp-thead-w1").innerHTML = buildWHead(dispW1,"w1h","🟠 1주차 &nbsp;|&nbsp; <span style='font-size:10px;opacity:.7;font-weight:500'>스케줄 변경 불가</span>");
   document.getElementById("cp-tbody-w1").innerHTML = buildWRows(drivers,dispW1,"w1h",useGreen);
   document.getElementById("cp-thead-w2").innerHTML = buildWHead(dispW2,"w2h","🔵 2주차");
   document.getElementById("cp-tbody-w2").innerHTML = buildWRows(drivers,dispW2,"w2h",useGreen);
 
-  /* 모바일 카드 */
   document.getElementById("mobile-list").innerHTML = buildMobileCards(drivers, useGreen, dispW1, dispW2);
 
-  /* 접기/펼치기 */
   document.querySelectorAll(".dc-head").forEach(function(head) {
     head.addEventListener("click", function() {
       head.parentElement.classList.toggle("collapsed");
@@ -1302,18 +1351,12 @@ function fixStickyHeads() {
   var tb = document.querySelector(".topbar");
   if (!tb) return;
   var tbH = tb.offsetHeight;
-
-  // .tbl-scroll 에 max-height 설정
-  // → overflow:auto 컨테이너가 뷰포트보다 작아지면
-  //   그 안의 thead th { top:0 } sticky가 컨테이너 상단에 고정됨
-  // → 컨테이너 자체는 topbar 아래 위치하므로 결과적으로 정렬됨
   var legend = document.querySelector(".legend");
   var lgH = legend ? legend.getBoundingClientRect().height + 16 : 0;
   var wl   = document.querySelector(".week-label");
   var wlH  = wl ? wl.getBoundingClientRect().height + 14 : 0;
   var notice = document.getElementById("cp-notice");
   var ntH  = (notice && notice.style.display !== "none") ? notice.offsetHeight + 8 : 0;
-  // 각 tbl-scroll의 max-height = 뷰포트 - topbar - legend - week-label - gap
   var maxH = Math.floor(window.innerHeight - tbH - lgH - wlH - ntH - 24);
   if (maxH < 200) maxH = 400;
 
@@ -1325,18 +1368,15 @@ function fixStickyHeads() {
 function doSearch() {
   var q = document.getElementById("cp-search").value.toLowerCase().trim();
   var vis = 0;
-  /* 데스크톱 */
   document.querySelectorAll("#cp-tbody-w1 tr[data-n], #cp-tbody-w2 tr[data-n]").forEach(function(tr) {
     var show = !q||tr.dataset.n.indexOf(q)>-1||tr.dataset.i.indexOf(q)>-1;
     tr.classList.toggle("hid",!show);
     if (show) vis++;
   });
-  /* 모바일 */
   document.querySelectorAll(".driver-card[data-n]").forEach(function(card) {
     var show = !q||card.dataset.n.indexOf(q)>-1||card.dataset.i.indexOf(q)>-1;
     card.classList.toggle("hid",!show);
   });
-  /* 데스크톱 카운트는 1주차 기준 */
   var visDesktop = document.querySelectorAll("#cp-tbody-w1 tr[data-n]:not(.hid)").length;
   setCount(visDesktop||vis);
 }
@@ -1354,7 +1394,6 @@ function copyLink(btn) {
       setTimeout(function(){ btn.textContent = orig; }, 1500);
     });
   } else {
-    // fallback
     var ta = document.createElement("textarea");
     ta.value = link; ta.style.position = "fixed"; ta.style.opacity = "0";
     document.body.appendChild(ta); ta.select();
@@ -1373,14 +1412,7 @@ window.addEventListener("resize", function() {
   if (pgCamp.classList.contains("on")) fixStickyHeads();
 });
 
-/* ── HASH ROUTING ──
-   URL 형식:
-     ?          → 관리자 전체 목록
-     #강서1캠프  → 해당 캠프만 표시 (기사 전용)
-   
-   배포 후 각 캠프 링크 예시:
-     https://your-site.com/스케줄.html#강서1캠프
-─────────────────────────────────── */
+/* ── HASH ROUTING ── */
 function getHashCamp() {
   var h = location.hash;
   if (!h || h === "#") return null;
@@ -1390,16 +1422,13 @@ function getHashCamp() {
 function init() {
   var campFromHash = getHashCamp();
   if (campFromHash && BY_CAMP[campFromHash]) {
-    // 캠프 전용 모드 — 뒤로가기 숨김, 해당 캠프만 표시
     document.body.classList.add("camp-only");
     showCamp(campFromHash);
   } else {
-    // 관리자 모드 — 전체 목록
     showIndex();
   }
 }
 
-// 해시 변경 시 재라우팅 (브라우저 뒤로가기 등)
 window.addEventListener("hashchange", function() {
   var c = getHashCamp();
   if (c && BY_CAMP[c]) {
@@ -1411,25 +1440,20 @@ window.addEventListener("hashchange", function() {
   }
 });
 
-/* init()는 loadFromAPI() 콜백에서 호출됩니다 */
-
 /* ═══════════════════════════════════════
    기사 숨기기 관리
 ═══════════════════════════════════════ */
-var HIDDEN_KEY   = "hiddenDrivers_v1";   // localStorage 폴백 키
-var HIDDEN_SET   = {};                    // { "이름": true }
-var HIDE_PENDING = {};                    // 모달에서 편집 중인 임시 상태
-var HIDE_CAMP_NOW = "";                   // 현재 탭
+var HIDDEN_KEY   = "hiddenDrivers_v1";
+var HIDDEN_SET   = {};
+var HIDE_PENDING = {};
+var HIDE_CAMP_NOW = "";
 
-/* API에서 숨김 목록 로드 — 실패 시 localStorage 폴백 */
 function loadHiddenSet() {
-  // 먼저 localStorage로 임시 적용 (빠른 렌더링)
   try {
     var raw = localStorage.getItem(HIDDEN_KEY);
     if (raw) HIDDEN_SET = JSON.parse(raw);
   } catch(e) {}
 
-  // 이후 API에서 최신 목록 가져오기 (비동기)
   var xhr = new XMLHttpRequest();
   xhr.open("GET", API_URL + "?action=getHidden", true);
   xhr.timeout = 10000;
@@ -1439,9 +1463,7 @@ function loadHiddenSet() {
       if (res.ok && Array.isArray(res.names)) {
         HIDDEN_SET = {};
         res.names.forEach(function(n){ if(n) HIDDEN_SET[n] = true; });
-        // localStorage에도 동기화
         try { localStorage.setItem(HIDDEN_KEY, JSON.stringify(HIDDEN_SET)); } catch(e) {}
-        // 인덱스 페이지가 활성화된 경우에만 새로고침 (캠프 페이지 강제 이동 방지)
         var pgIdx = document.getElementById("pg-index");
         var pgCmp = document.getElementById("pg-camp");
         if (pgIdx && pgIdx.classList.contains("on") && !(pgCmp && pgCmp.classList.contains("on"))) {
@@ -1450,19 +1472,14 @@ function loadHiddenSet() {
       }
     } catch(ex) {}
   };
-  xhr.onerror = xhr.ontimeout = function() {}; // 실패 시 localStorage 유지
+  xhr.onerror = xhr.ontimeout = function() {};
   xhr.send();
 }
 
-/* API에 숨김 목록 저장 + localStorage 동기화 */
 function saveHiddenSet() {
   var names = Object.keys(HIDDEN_SET);
   var dataJson = JSON.stringify(names);
-
-  // localStorage 즉시 저장
   try { localStorage.setItem(HIDDEN_KEY, JSON.stringify(HIDDEN_SET)); } catch(e) {}
-
-  // API 저장 (비동기)
   var xhr = new XMLHttpRequest();
   var url = API_URL + "?action=setHidden&data=" + encodeURIComponent(dataJson);
   xhr.open("GET", url, true);
@@ -1470,17 +1487,14 @@ function saveHiddenSet() {
   xhr.send();
 }
 
-/* 숨긴 기사 제외한 기사 목록 반환 */
 function visibleDrivers(drivers) {
   return drivers.filter(function(d){ return !HIDDEN_SET[d.name]; });
 }
 
-/* 모달 열기 */
 function showHideManager() {
   if (!DRIVERS.length) return;
   HIDE_PENDING = Object.assign({}, HIDDEN_SET);
 
-  // 탭 목록 (첫 번째 캠프 기본 선택)
   var tabs = document.getElementById("hide-camp-tabs");
   tabs.innerHTML = "";
   CAMPS.forEach(function(camp, i) {
@@ -1501,7 +1515,6 @@ function showHideManager() {
   document.getElementById("hide-modal").style.display = "flex";
 }
 
-/* 캠프 탭 전환 */
 function switchHideCamp(camp) {
   HIDE_CAMP_NOW = camp;
   document.querySelectorAll(".hide-camp-tab").forEach(function(t){
@@ -1511,7 +1524,6 @@ function switchHideCamp(camp) {
   renderHideList("", camp);
 }
 
-/* 기사 목록 렌더링 */
 function renderHideList(query, camp) {
   var drivers = BY_CAMP[camp] || [];
   query = query.trim().toLowerCase();
@@ -1553,14 +1565,12 @@ function renderHideList(query, camp) {
   });
 }
 
-/* 체크박스 토글 */
 function toggleHideDriver(name) {
   if (HIDE_PENDING[name]) {
     delete HIDE_PENDING[name];
   } else {
     HIDE_PENDING[name] = true;
   }
-  // 해당 행 스타일 업데이트
   var rows = document.querySelectorAll(".hide-driver-row");
   rows.forEach(function(row) {
     if (row.dataset.name === name) {
@@ -1571,7 +1581,6 @@ function toggleHideDriver(name) {
   updateHideCount();
 }
 
-/* 탭 배지 업데이트 */
 function updateTabBadges() {
   document.querySelectorAll(".hide-camp-tab").forEach(function(t) {
     var camp = t.dataset.camp;
@@ -1586,13 +1595,11 @@ function updateTabBadges() {
   });
 }
 
-/* 숨긴 수 업데이트 */
 function updateHideCount() {
   var cnt = Object.keys(HIDE_PENDING).length;
   document.getElementById("hide-count-txt").textContent = "숨긴 기사: " + cnt + "명";
 }
 
-/* 현재 탭 전체 선택 */
 function selectAllVisible() {
   var drivers = BY_CAMP[HIDE_CAMP_NOW] || [];
   var query = document.getElementById("hide-search").value.trim().toLowerCase();
@@ -1602,7 +1609,6 @@ function selectAllVisible() {
   updateTabBadges(); updateHideCount();
 }
 
-/* 현재 탭 전체 해제 */
 function deselectAllVisible() {
   var drivers = BY_CAMP[HIDE_CAMP_NOW] || [];
   var query = document.getElementById("hide-search").value.trim().toLowerCase();
@@ -1612,7 +1618,6 @@ function deselectAllVisible() {
   updateTabBadges(); updateHideCount();
 }
 
-/* 전체 초기화 */
 function resetAllHidden() {
   if (!confirm("숨긴 기사를 모두 초기화할까요?")) return;
   HIDE_PENDING = {};
@@ -1620,40 +1625,32 @@ function resetAllHidden() {
   updateTabBadges(); updateHideCount();
 }
 
-/* 검색 필터 */
 function filterHideList(val) {
   renderHideList(val, HIDE_CAMP_NOW);
 }
 
-/* 적용 */
 function applyHideList() {
   HIDDEN_SET = Object.assign({}, HIDE_PENDING);
   saveHiddenSet();
   closeHideManager();
 
-  // 현재 열린 페이지에 즉시 반영
   var campPage = document.getElementById("pg-camp");
   var campName = document.getElementById("cp-title").textContent;
   if (campPage && campPage.classList.contains("on") && campName) {
-    // 캠프 페이지 열려있으면 해당 캠프 새로고침
     showCamp(campName);
   } else {
-    // 인덱스 페이지면 인덱스 새로고침
     showIndex();
   }
 }
 
-/* 모달 닫기 */
 function closeHideManager() {
   document.getElementById("hide-modal").style.display = "none";
 }
 
-var HIST_MODE = false;   // 이전 스케줄 표시 중 여부
-var HIST_CAMP = "";      // 현재 캠프 이름
+var HIST_MODE = false;
+var HIST_CAMP = "";
 
-/* 모달 열기 — 과거 8주 목록 생성 */
 function showHistoryModal() {
-  /* 오늘(PDD) 기준 이번주 일요일 */
   var pdd     = new Date(TODAY + "T00:00:00");
   var thisSun = new Date(pdd);
   thisSun.setDate(pdd.getDate() - pdd.getDay());
@@ -1661,7 +1658,6 @@ function showHistoryModal() {
   var container = document.getElementById("hist-weeks");
   container.innerHTML = "";
 
-  /* 이번주 + 1주 전 + 2주 전 (총 3개) */
   for (var w = 0; w <= 2; w++) {
     var sun = new Date(thisSun);
     sun.setDate(thisSun.getDate() - w * 7);
@@ -1698,19 +1694,16 @@ function closeHistoryModal() {
   document.getElementById("hist-modal").style.display = "none";
 }
 
-/* 특정 주 스케줄 로드 — 기존 DRIVERS 데이터에서 직접 조회 */
 function loadHistWeek(sunDs, satDs) {
   closeHistoryModal();
   var campName = document.getElementById("cp-title").textContent;
   renderHistWeek(sunDs, satDs, campName);
 }
 
-/* 기존 DRIVERS 데이터로 이전 주 렌더링 */
 function renderHistWeek(sunDs, satDs, campName) {
   var allDrivers = BY_CAMP[campName] || [];
-  var drivers = visibleDrivers(allDrivers);  // 숨긴 기사 제외
+  var drivers = visibleDrivers(allDrivers);
 
-  /* 선택한 주 7일 날짜 객체 */
   var histW1 = [];
   for (var i = 0; i < 7; i++) {
     var ds = addD(sunDs, i);
@@ -1718,14 +1711,12 @@ function renderHistWeek(sunDs, satDs, campName) {
     histW1.push({ ds: ds, dow: dw, dn: KD[dw], peak: false, inSheet: true, isToday: ds === TODAY });
   }
 
-  /* 스케줄 데이터 있는지 확인 */
   var hasData = drivers.some(function(d) {
     return histW1.some(function(w) { return d.schedule[w.ds]; });
   });
 
   var useGreen = (campName === "백업" || campName === "운영자");
 
-  /* 데스크톱 테이블 — 1주차에 선택 주, 2주차는 숨김 */
   document.getElementById("cp-thead-w1").innerHTML = buildWHead(
     histW1, "w1h",
     "📅 " + fmtFull(sunDs) + " ~ " + fmtFull(satDs)
@@ -1734,27 +1725,22 @@ function renderHistWeek(sunDs, satDs, campName) {
     ? buildWRows(drivers, histW1, "w1h", useGreen)
     : "<tr><td colspan='99' style='text-align:center;padding:24px;color:var(--text3);font-size:13px'>📭 해당 기간의 스케줄 데이터가 없습니다</td></tr>";
 
-  /* 2주차 영역 숨기기 */
   document.getElementById("wl2-badge").style.display = "none";
   document.getElementById("wl2-range").textContent = "";
   document.getElementById("cp-thead-w2").innerHTML = "";
   document.getElementById("cp-tbody-w2").innerHTML = "";
 
-  /* 모바일 카드 — 1주차만 */
   document.getElementById("mobile-list").innerHTML = buildMobileCards(drivers, useGreen, histW1, []);
 
-  /* 주차 레이블 */
   document.getElementById("wl1-range").textContent = fmtFull(sunDs) + " ~ " + fmtFull(satDs);
   document.getElementById("wl1-badge").style.display = "";
 
-  /* 배너 표시 */
   HIST_MODE = true;
   var banner = document.getElementById("hist-banner");
   banner.style.display = "block";
   document.getElementById("hist-banner-txt").textContent =
     "📅 이전 스케줄 조회 중: " + fmtFull(sunDs) + " ~ " + fmtFull(satDs);
 
-  /* 접기/펼치기 재등록 */
   document.querySelectorAll(".dc-head").forEach(function(head) {
     head.onclick = function() { head.parentElement.classList.toggle("collapsed"); };
   });
@@ -1762,11 +1748,9 @@ function renderHistWeek(sunDs, satDs, campName) {
   window.scrollTo(0, 0);
 }
 
-/* 오늘 주로 복귀 */
 function backToToday() {
   HIST_MODE = false;
   document.getElementById("hist-banner").style.display = "none";
-  // 2주차 배지 복원
   var b2 = document.getElementById("wl2-badge");
   if (b2) b2.style.display = "";
   var campName = document.getElementById("cp-title").textContent;
