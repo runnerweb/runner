@@ -1126,13 +1126,42 @@ function buildWindow() {
 /* ═══════════════════════════════════════
    캠프 맵 구성 — ALLOWED_CAMPS 화이트리스트 적용
 ═══════════════════════════════════════ */
+function hasAnySchedule(d) {
+  if (!d.schedule) return false;
+  return Object.keys(d.schedule).some(function(k) {
+    var v = d.schedule[k];
+    return v && v !== "" && v !== "None";
+  });
+}
+
 function buildCampMap() {
   CAMPS = []; BY_CAMP = {};
+
+  // 1단계: 캠프별로 전체 기사 수집
+  var rawByCamp = {};
   DRIVERS.forEach(function(d) {
-    if (!BY_CAMP[d.camp]) { BY_CAMP[d.camp]=[]; }
-    BY_CAMP[d.camp].push(d);
+    if (!rawByCamp[d.camp]) rawByCamp[d.camp] = [];
+    rawByCamp[d.camp].push(d);
   });
-  // ALLOWED_CAMPS에 있는 캠프만, 지정한 순서대로 표시
+
+  // 2단계: 이름+아이디 기준 중복 제거 — 스케줄 있는 행 우선, 없으면 첫 번째 행 유지
+  Object.keys(rawByCamp).forEach(function(camp) {
+    var seen = {};
+    rawByCamp[camp].forEach(function(d) {
+      var key = d.name + "||" + d.id;
+      if (!seen[key]) {
+        seen[key] = d;
+      } else {
+        // 이미 있는데 현재 행에 스케줄이 있으면 교체
+        if (hasAnySchedule(d) && !hasAnySchedule(seen[key])) {
+          seen[key] = d;
+        }
+      }
+    });
+    BY_CAMP[camp] = Object.keys(seen).map(function(k) { return seen[k]; });
+  });
+
+  // 3단계: ALLOWED_CAMPS에 있는 캠프만, 지정한 순서대로 표시
   CAMPS = ALLOWED_CAMPS.filter(function(c) { return !!BY_CAMP[c]; });
 }
 
