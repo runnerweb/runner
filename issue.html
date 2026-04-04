@@ -262,90 +262,7 @@ body {
 @keyframes spin { to { transform: rotate(360deg); } }
 .loading-txt { font-size: 13px; color: var(--text2); }
 
-/* ══════════════════════
-   오늘 이슈 팝업
-══════════════════════ */
-#today-popup {
-  position: fixed; inset: 0;
-  background: rgba(15,23,42,.55);
-  z-index: 9999;
-  display: flex; align-items: center; justify-content: center;
-  padding: 16px;
-  animation: bgIn .2s ease;
-}
-@keyframes bgIn { from { opacity: 0; } to { opacity: 1; } }
 
-.popup-box {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: 18px;
-  width: 100%; max-width: 460px; max-height: 84vh;
-  display: flex; flex-direction: column;
-  box-shadow: 0 20px 60px rgba(0,0,0,.25);
-  overflow: hidden;
-  animation: popUp .26s cubic-bezier(.34,1.56,.64,1);
-}
-@keyframes popUp { from { opacity: 0; transform: translateY(20px) scale(.97); } to { opacity: 1; transform: none; } }
-
-.popup-head {
-  padding: 18px 20px 14px;
-  border-bottom: 1px solid var(--border);
-  background: linear-gradient(135deg, var(--os), var(--acc-soft));
-  flex-shrink: 0;
-}
-.popup-head-top {
-  display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px;
-}
-.popup-title {
-  font-size: 15px; font-weight: 900;
-  display: flex; align-items: center; gap: 8px; color: var(--text);
-}
-.popup-title-icon {
-  width: 30px; height: 30px; border-radius: 7px; flex-shrink: 0;
-  background: linear-gradient(135deg, #f59e0b, #ea580c);
-  display: flex; align-items: center; justify-content: center; font-size: 15px;
-}
-.popup-close {
-  background: var(--surface2); border: 1px solid var(--border);
-  border-radius: 7px; padding: 4px 11px;
-  font-size: 15px; cursor: pointer; color: var(--text2); transition: all .15s;
-}
-.popup-close:hover { background: var(--border); color: var(--text); }
-.popup-date { font-size: 11px; color: var(--text2); font-family: "JetBrains Mono", monospace; }
-
-.popup-body { flex: 1; overflow-y: auto; padding: 14px 16px; }
-.popup-item {
-  display: flex; align-items: flex-start; gap: 10px;
-  background: var(--bg); border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: 10px; padding: 11px 13px; margin-bottom: 8px;
-}
-.popup-item:last-child { margin-bottom: 0; }
-.popup-item-badge {
-  flex-shrink: 0; padding: 2px 9px; border-radius: 7px;
-  font-size: 10px; font-weight: 700; margin-top: 2px; white-space: nowrap;
-  background: var(--acc-soft); color: var(--accent); border: 1px solid var(--acc-bd);
-}
-.popup-item-content {
-  flex: 1; font-size: 13px; color: var(--text);
-  line-height: 1.7; word-break: keep-all; white-space: pre-line;
-}
-
-.popup-foot {
-  padding: 12px 18px 16px; border-top: 1px solid var(--border);
-  display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
-}
-.no-more-label {
-  display: flex; align-items: center; gap: 7px;
-  font-size: 12px; color: var(--text2); cursor: pointer; user-select: none;
-}
-.no-more-label input { width: 15px; height: 15px; accent-color: var(--accent); cursor: pointer; }
-.popup-confirm {
-  background: var(--accent); color: #fff; border: none; border-radius: 9px;
-  padding: 8px 22px; font-size: 13px; font-weight: 700; cursor: pointer;
-  font-family: "Noto Sans KR", sans-serif; transition: opacity .15s;
-}
-.popup-confirm:hover { opacity: .85; }
 
 /* ══════════════════════
    이슈 입력 버튼 (헤더)
@@ -589,35 +506,13 @@ body {
   </div>
 </div>
 
-<!-- 오늘 이슈 팝업 -->
-<div id="today-popup" style="display:none">
-  <div class="popup-box">
-    <div class="popup-head">
-      <div class="popup-head-top">
-        <div class="popup-title">
-          <div class="popup-title-icon">📢</div>
-          오늘의 이슈
-        </div>
-        <button class="popup-close" onclick="closePopup()">✕</button>
-      </div>
-      <div class="popup-date" id="popup-date">—</div>
-    </div>
-    <div class="popup-body" id="popup-body"></div>
-    <div class="popup-foot">
-      <label class="no-more-label">
-        <input type="checkbox" id="dismiss-cb"> 오늘은 그만 보기
-      </label>
-      <button class="popup-confirm" onclick="closePopup()">확인</button>
-    </div>
-  </div>
-</div>
+
 
 <script>
 /* ════════════════════════
    설정
 ════════════════════════ */
 var API_BASE    = "https://script.google.com/macros/s/AKfycbz6PQIGfl2l_P7KSBKQkuPLLPoHt-tLx-ZwcPlYUxNQj39oROys5MW4tObDrNhSQhew/exec";
-var DISMISS_KEY = "issuePopupDismiss_v2";
 var _jsonpTimer = null;
 
 /* ════════════════════════
@@ -703,7 +598,6 @@ function fetchIssues() {
     if (data && data.ok && Array.isArray(data.issues)) {
       ALL_ISSUES = data.issues;
       renderAll();
-      checkTodayPopup();
     } else {
       showError((data && data.error) || "데이터를 불러올 수 없습니다.");
     }
@@ -843,42 +737,7 @@ function showError(msg) {
     '</div></div>');
 }
 
-/* ════════════════════════
-   오늘 이슈 팝업
-════════════════════════ */
-function checkTodayPopup() {
-  var todayIssues = ALL_ISSUES.filter(function(i) { return i.date===TODAY; });
-  if (!todayIssues.length) return;
-  try { if (localStorage.getItem(DISMISS_KEY)===TODAY) return; } catch(e) {}
-  showPopup(todayIssues);
-}
 
-function showPopup(issues) {
-  document.getElementById("popup-date").textContent = fmtKor(TODAY);
-  document.getElementById("dismiss-cb").checked = false;
-
-  var html = issues.map(function(iss) {
-    return "<div class='popup-item'>" +
-      "<span class='popup-item-badge'>"+esc(iss.type)+"</span>" +
-      "<div class='popup-item-content'>"+esc(iss.content)+"</div>" +
-    "</div>";
-  }).join("");
-
-  document.getElementById("popup-body").innerHTML = html;
-  document.getElementById("today-popup").style.display = "flex";
-}
-
-function closePopup() {
-  var cb = document.getElementById("dismiss-cb");
-  if (cb && cb.checked) {
-    try { localStorage.setItem(DISMISS_KEY, TODAY); } catch(e) {}
-  }
-  document.getElementById("today-popup").style.display = "none";
-}
-
-document.getElementById("today-popup").addEventListener("click", function(e) {
-  if (e.target === this) closePopup();
-});
 
 /* ════════════════════════
    이슈 입력 모달
