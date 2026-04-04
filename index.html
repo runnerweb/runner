@@ -384,6 +384,9 @@
     <p>© 2026 <span>러너로지스 RunnerLogis</span>. All rights reserved.</p>
   </footer>
 
+  <!-- 로딩 중 클릭 차단 오버레이 -->
+  <div id="block-overlay"></div>
+
   <!-- ════ 내일 이슈 팝업 ════ -->
   <div id="issue-popup" style="display:none">
     <div class="ip-box">
@@ -533,6 +536,15 @@
       font-family: 'Noto Sans KR', sans-serif; transition: all .15s;
     }
     .ip-detail-btn:hover { background: var(--gray-200); color: var(--gray-800); }
+
+    /* ── 로딩 차단 오버레이 ── */
+    #block-overlay {
+      position: fixed; inset: 0;
+      background: rgba(255,255,255,.01);
+      z-index: 9998;
+      display: none;
+      cursor: wait;
+    }
   </style>
 
   <script>
@@ -610,10 +622,12 @@
       }).join("");
 
       document.getElementById("ip-body").innerHTML = html;
+      /* 로딩 오버레이 숨기고 팝업으로 전환 */
+      var ov = document.getElementById("block-overlay");
+      if (ov) ov.style.display = "none";
       var popup = document.getElementById("issue-popup");
       popup.style.opacity = "";
       popup.style.display = "flex";
-      /* 뒤 콘텐츠 스크롤 차단 */
       document.body.style.overflow = "hidden";
     }
 
@@ -625,6 +639,11 @@
       try {
         if (localStorage.getItem(DISMISS_KEY) === today) return;
       } catch(e) {}
+
+      /* 데이터 로딩 중 카드 클릭 차단 */
+      var overlay = document.getElementById("block-overlay");
+      if (overlay) overlay.style.display = "block";
+      document.body.style.overflow = "hidden";
 
       if (_ipTimer) clearTimeout(_ipTimer);
 
@@ -646,9 +665,18 @@
           });
           if (todayIssues.length > 0) {
             showIssuePopup(todayIssues, today);
+          } else {
+            /* 이슈 없으면 차단 해제 */
+            var ov = document.getElementById("block-overlay");
+            if (ov) ov.style.display = "none";
+            document.body.style.overflow = "";
           }
+        } else {
+          /* 오류 시 차단 해제 */
+          var ov2 = document.getElementById("block-overlay");
+          if (ov2) ov2.style.display = "none";
+          document.body.style.overflow = "";
         }
-        /* 이슈 없으면 팝업 미표시 — 조용히 종료 */
       };
 
       var script = document.createElement("script");
@@ -658,12 +686,18 @@
         if (_ipTimer) { clearTimeout(_ipTimer); _ipTimer = null; }
         if (script.parentNode) script.parentNode.removeChild(script);
         delete window[cbName];
+        var ov = document.getElementById("block-overlay");
+        if (ov) ov.style.display = "none";
+        document.body.style.overflow = "";
       };
 
       _ipTimer = setTimeout(function() {
         var s = document.getElementById("_ip_script");
         if (s && s.parentNode) s.parentNode.removeChild(s);
         delete window[cbName];
+        var ov = document.getElementById("block-overlay");
+        if (ov) ov.style.display = "none";
+        document.body.style.overflow = "";
       }, 20000);
 
       document.head.appendChild(script);
