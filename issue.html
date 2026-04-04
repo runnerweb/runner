@@ -99,6 +99,10 @@ body {
 .ctrl-bar {
   display: flex; align-items: center; gap: 8px;
   margin-bottom: 16px; flex-wrap: wrap;
+  justify-content: space-between;
+}
+.ctrl-bar-left {
+  display: flex; align-items: center; gap: 8px; flex-wrap: wrap;
 }
 
 /* 기간 탭 */
@@ -166,71 +170,81 @@ body {
 .kpi-card.k-today .kpi-val { color: var(--orange); }
 
 /* ══════════════════════
-   날짜 그룹
+   통합 이슈 카드
 ══════════════════════ */
-.date-group { margin-bottom: 12px; }
-
-.dg-header {
-  display: flex; align-items: center; gap: 8px;
-  padding: 8px 14px; border-radius: 9px; margin-bottom: 6px;
-  background: var(--surface2); border-left: 3px solid var(--border2);
-  position: sticky; top: 55px; z-index: 10;
-}
-.dg-header.is-today {
-  background: var(--today-bg);
-  border-left-color: var(--accent);
-  box-shadow: 0 0 0 1px var(--today-bd);
-}
-.dg-date {
-  font-size: 13px; font-weight: 700;
-  font-family: "JetBrains Mono", monospace; color: var(--text);
-}
-.dg-dow { font-size: 11px; color: var(--text2); }
-.sun-txt { color: #ef4444; } .sat-txt { color: #3b82f6; }
-.dg-today-badge {
-  background: var(--accent); color: #fff;
-  font-size: 10px; font-weight: 700;
-  padding: 2px 9px; border-radius: 10px;
-  animation: pulse 2s infinite;
-}
+@keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: none; } }
 @keyframes pulse {
   0%,100% { box-shadow: 0 0 0 0 rgba(37,99,235,.4); }
   50%      { box-shadow: 0 0 0 5px rgba(37,99,235,0); }
 }
-.dg-cnt {
-  margin-left: auto; font-size: 10px; color: var(--text3);
-  font-family: "JetBrains Mono", monospace;
-}
+.sun-txt { color: #ef4444; } .sat-txt { color: #3b82f6; }
 
-/* ══════════════════════
-   이슈 카드
-══════════════════════ */
 .issue-card {
-  background: var(--surface); border: 1px solid var(--border);
-  border-left: 3px solid var(--accent);
-  border-radius: var(--radius); padding: 13px 16px;
-  margin-bottom: 6px; box-shadow: var(--shadow);
-  transition: border-color .15s, box-shadow .15s;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 10px;
+  box-shadow: var(--shadow);
+  overflow: hidden;
+  transition: border-color .15s, box-shadow .15s, transform .15s;
   animation: fadeIn .18s ease both;
 }
 .issue-card:hover {
   border-color: var(--acc-bd);
   box-shadow: var(--shadow2);
+  transform: translateY(-1px);
 }
-@keyframes fadeIn { from { opacity: 0; transform: translateY(3px); } to { opacity: 1; transform: none; } }
 
-.issue-inner { display: flex; align-items: flex-start; gap: 10px; }
+/* 날짜 헤더 영역 */
+.ic-date-bar {
+  display: flex; align-items: center; gap: 8px;
+  padding: 9px 14px;
+  background: var(--surface2);
+  border-bottom: 1px solid var(--border);
+}
+.ic-date-bar.is-today {
+  background: var(--today-bg);
+  border-bottom-color: var(--today-bd);
+}
+.ic-date {
+  font-size: 12px; font-weight: 700;
+  font-family: "JetBrains Mono", monospace; color: var(--text);
+}
+.ic-dow { font-size: 11px; color: var(--text2); }
+.ic-today-badge {
+  background: var(--accent); color: #fff;
+  font-size: 10px; font-weight: 700;
+  padding: 1px 8px; border-radius: 8px;
+  animation: pulse 2s infinite;
+}
+.ic-cnt {
+  margin-left: auto;
+  font-size: 10px; color: var(--text3);
+  font-family: "JetBrains Mono", monospace;
+}
 
-.issue-type-badge {
+/* 비고 목록 영역 */
+.ic-body { padding: 6px 0; }
+
+.ic-row {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 9px 14px;
+  border-bottom: 1px solid var(--border);
+  transition: background .1s;
+}
+.ic-row:last-child { border-bottom: none; }
+.ic-row:hover { background: var(--surface2); }
+
+.ic-badge {
   flex-shrink: 0; margin-top: 2px;
-  padding: 3px 10px; border-radius: 8px;
+  padding: 2px 9px; border-radius: 7px;
   font-size: 10px; font-weight: 700; white-space: nowrap;
   background: var(--acc-soft); color: var(--accent);
   border: 1px solid var(--acc-bd);
 }
-.issue-content {
+.ic-content {
   flex: 1; font-size: 13px; color: var(--text);
-  line-height: 1.7; word-break: keep-all; white-space: pre-line;
+  line-height: 1.65; word-break: keep-all; white-space: pre-line;
 }
 
 /* ══════════════════════
@@ -414,7 +428,6 @@ body {
     </div>
     <div class="header-right">
       <div class="today-chip" id="hd-today">—</div>
-      <button class="write-btn" onclick="openWriteModal()">✏️ 이슈 입력</button>
       <button class="refresh-btn" onclick="reload()" title="새로고침">↺</button>
     </div>
   </div>
@@ -434,6 +447,7 @@ body {
       <div class="week-range-txt" id="week-range-txt">—</div>
       <button class="wnav-btn" onclick="moveWeek(1)">▶</button>
     </div>
+    <button class="write-btn" onclick="openWriteModal()">✏️ 업무 입력</button>
   </div>
 
   <!-- KPI -->
@@ -702,24 +716,28 @@ function renderAll() {
     var dowStr  = KD[dow];
     var dowCls  = dow===0 ? "sun-txt" : dow===6 ? "sat-txt" : "";
     var items   = groups[date];
+    var delay   = (idx * 0.05).toFixed(2);
 
-    html += "<div class='date-group'>" +
-      "<div class='dg-header"+(isToday?" is-today":"")+"'>" +
-        "<span class='dg-date'>"+date+"</span>" +
-        "<span class='dg-dow "+dowCls+"'>"+dowStr+"요일</span>" +
-        (isToday ? "<span class='dg-today-badge'>오늘</span>" : "") +
-        "<span class='dg-cnt'>"+items.length+"건</span>" +
-      "</div>";
+    // 날짜 + 비고들을 하나의 카드에 통합
+    html += "<div class='issue-card' style='animation-delay:"+delay+"s'>";
 
-    items.forEach(function(iss, i2) {
-      var delay = ((idx*3+i2)*0.03).toFixed(2);
-      html += "<div class='issue-card' style='animation-delay:"+delay+"s'>" +
-        "<div class='issue-inner'>" +
-          "<span class='issue-type-badge'>"+esc(iss.type)+"</span>" +
-          "<div class='issue-content'>"+esc(iss.content)+"</div>" +
-        "</div>" +
+    // 날짜 헤더 바
+    html += "<div class='ic-date-bar"+(isToday?" is-today":"")+"'>" +
+      "<span class='ic-date'>"+date+"</span>" +
+      "<span class='ic-dow "+dowCls+"'>"+dowStr+"요일</span>" +
+      (isToday ? "<span class='ic-today-badge'>오늘</span>" : "") +
+      "<span class='ic-cnt'>"+items.length+"건</span>" +
+    "</div>";
+
+    // 비고 목록
+    html += "<div class='ic-body'>";
+    items.forEach(function(iss) {
+      html += "<div class='ic-row'>" +
+        "<span class='ic-badge'>"+esc(iss.type)+"</span>" +
+        "<div class='ic-content'>"+esc(iss.content)+"</div>" +
       "</div>";
     });
+    html += "</div>";
 
     html += "</div>";
   });
