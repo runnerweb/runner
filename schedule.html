@@ -978,6 +978,7 @@ function mkChip(v, useGreen) {
   if (v==="고정휴무")          return "<span class=\"chip cf\">고정휴무</span>";
   if (v.indexOf("휴가")>-1)   return "<span class=\"chip cv\">"+v+"</span>";
   if (v.indexOf("병가")>-1)   return "<span class=\"chip cs\">"+v+"</span>";
+  if (v.indexOf("퇴사")>-1)   return "<span class=\"chip co\">"+v+"</span>";
   return "<span class=\"chip cg\">"+v+"</span>";
 }
 function getInitial(name) {
